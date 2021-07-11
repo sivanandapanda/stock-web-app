@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 import requests
+import os
 
 st.write("""
 #Stock Market Web Application
@@ -10,6 +11,8 @@ st.write("""
 
 st.sidebar.header('User Input')
 
+apiKey = os.getenv('ALPHA_VANTAGE_API_KEY')
+
 def get_input():
     start_date = st.sidebar.text_input("Start Date", "2021-02-12")
     end_date = st.sidebar.text_input("End Date", "2021-07-09")
@@ -17,13 +20,10 @@ def get_input():
     return start_date, end_date, stock_symbol
 
 def get_company_name(symbol):
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&apikey=demo'
-    r = requests.get(url)
-    data = r.json()
-    return data['Meta Data']['2. Symbol']
+    return symbol
 
 def download_data(symbol):
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&apikey=demo'
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&apikey='+apiKey
     r = requests.get(url)
     data = r.json()
     price_array=[]
@@ -37,7 +37,7 @@ def download_data(symbol):
 
 def get_data(symbol, start, end):
     downloaded = download_data(symbol)
-    df = pd.DataFrame(downloaded)
+    df = pd.array(downloaded, dtype=str)
     
     start = pd.to_datetime(start)
     end = pd.to_datetime(end)
