@@ -6,7 +6,7 @@ import os
 
 st.write("""
 #Stock Market Web Application
-**Visually** show data on a stock! Date range from Jan 2, 2020 - Aug 4, 2020
+**Visually** show data on a stock!
 """)
 
 st.sidebar.header('User Input')
@@ -26,18 +26,28 @@ def download_data(symbol):
     url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&apikey='+apiKey
     r = requests.get(url)
     data = r.json()
-    price_array=[]
-    price_array.append('Date,Open,High,Low,Close,Volume')
 
-    for i in list(data['Time Series (Daily)'].keys()):
-        to_insert=i+','+data['Time Series (Daily)'][i]['1. open']+','+data['Time Series (Daily)'][i]['2. high']+','+data['Time Series (Daily)'][i]['3. low']+','+data['Time Series (Daily)'][i]['4. close']+','+data['Time Series (Daily)'][i]['5. volume']
-        price_array.append(to_insert)
-    
-    return price_array
+    time_series_name = list(data.keys())[1]
+
+    json_data = {}
+    time_series_arr = []
+
+    for i in list(data[time_series_name].keys()):
+        one_time_series = {}
+        one_time_series['Date'] = i
+        one_time_series['Open'] = data[time_series_name][i]['1. open']
+        one_time_series['High'] = data[time_series_name][i]['2. high']
+        one_time_series['Low'] = data[time_series_name][i]['3. low']
+        one_time_series['Close'] = data[time_series_name][i]['4. close']
+        one_time_series['Volume'] = data[time_series_name][i]['5. volume']
+        time_series_arr.append(one_time_series)
+
+    json_data['time_series'] = time_series_arr
+    return json_data
 
 def get_data(symbol, start, end):
     downloaded = download_data(symbol)
-    df = pd.array(downloaded, dtype=str)
+    df = pd.json_normalize(downloaded, 'time_series')
     
     start = pd.to_datetime(start)
     end = pd.to_datetime(end)
@@ -52,16 +62,19 @@ def get_data(symbol, start, end):
 
     for j in range(0, len(df)):
         if end >= pd.to_datetime(df['Date'][j]):
-            end_row = j
+            end_row = len(df) - 1 - j
             break
 
     df = df.set_index(pd.DatetimeIndex(df['Date'].values))
 
     return df.iloc[start_row:end_row+1, :]
+    #return df
 
 start, end, symbol = get_input()
 
 df = get_data(symbol, start, end)
+
+print(df.head(10))
 
 company_name = get_company_name(symbol.upper())
 
