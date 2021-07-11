@@ -40,7 +40,17 @@ def download_data(symbol):
         one_time_series['Low'] = data[time_series_name][i]['3. low']
         one_time_series['Close'] = data[time_series_name][i]['4. close']
         one_time_series['Volume'] = data[time_series_name][i]['5. volume']
-        time_series_arr.append(one_time_series)
+        
+        #apend to the front of the list 
+
+        #method 1
+        #time_series_arr.insert(0, one_time_series)
+
+        #method 2
+        #time_series_arr = [one_time_series] + time_series_arr
+
+        #method 3
+        time_series_arr[:0] = [one_time_series]
 
     json_data['time_series'] = time_series_arr
     return json_data
@@ -68,13 +78,12 @@ def get_data(symbol, start, end):
     df = df.set_index(pd.DatetimeIndex(df['Date'].values))
 
     return df.iloc[start_row:end_row+1, :]
-    #return df
 
 start, end, symbol = get_input()
 
 df = get_data(symbol, start, end)
 
-print(df.head(10))
+#print(df.head(10))
 
 company_name = get_company_name(symbol.upper())
 
