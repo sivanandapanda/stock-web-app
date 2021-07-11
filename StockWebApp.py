@@ -5,7 +5,7 @@ import requests
 import os
 
 st.write("""
-#Stock Market Web Application
+# Stock Market Web Application
 **Visually** show data on a stock!
 """)
 
