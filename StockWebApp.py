@@ -23,7 +23,7 @@ def get_company_name(symbol):
     return symbol
 
 def download_data(symbol):
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+symbol+'&apikey='+apiKey
+    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol='+symbol+'&apikey='+apiKey
     r = requests.get(url)
     data = r.json()
 
@@ -34,12 +34,12 @@ def download_data(symbol):
 
     for i in list(data[time_series_name].keys()):
         one_time_series = {}
-        one_time_series['Date'] = i
         one_time_series['Open'] = data[time_series_name][i]['1. open']
         one_time_series['High'] = data[time_series_name][i]['2. high']
         one_time_series['Low'] = data[time_series_name][i]['3. low']
         one_time_series['Close'] = data[time_series_name][i]['4. close']
         one_time_series['Volume'] = data[time_series_name][i]['5. volume']
+        one_time_series['Date'] = i
         
         #apend to the front of the list 
 
@@ -58,6 +58,14 @@ def download_data(symbol):
 def get_data(symbol, start, end):
     downloaded = download_data(symbol)
     df = pd.json_normalize(downloaded, 'time_series')
+
+    #print(list(downloaded['time_series_arr'])[0])
+
+    #df = pd.DataFrame({
+    #'Close': list(map(lambda d:d['Close'], downloaded['time_series'])),
+    #'Volume' : list(map(lambda d:d['Volume'], downloaded['time_series'])),
+    #'Date': list(map(lambda d:d['Date'], downloaded['time_series']))
+    #}, columns=['Close', 'Volume', 'Date'])
     
     start = pd.to_datetime(start)
     end = pd.to_datetime(end)
