@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from PIL import Image
 import requests
 import os
 
@@ -14,7 +13,7 @@ st.sidebar.header('User Input')
 apiKey = os.getenv('ALPHA_VANTAGE_API_KEY')
 
 def get_input():
-    start_date = st.sidebar.text_input("Start Date", "2021-02-12")
+    start_date = st.sidebar.text_input("Start Date", "2001-01-01")
     end_date = st.sidebar.text_input("End Date", "2021-07-09")
     stock_symbol = st.sidebar.text_input("Stock Symbol", "RELIANCE.BSE")
     return start_date, end_date, stock_symbol
@@ -34,11 +33,11 @@ def download_data(symbol):
 
     for i in list(data[time_series_name].keys()):
         one_time_series = {}
-        one_time_series['Open'] = data[time_series_name][i]['1. open']
-        one_time_series['High'] = data[time_series_name][i]['2. high']
-        one_time_series['Low'] = data[time_series_name][i]['3. low']
-        one_time_series['Close'] = data[time_series_name][i]['4. close']
-        one_time_series['Volume'] = data[time_series_name][i]['5. volume']
+        one_time_series['Open'] = float(data[time_series_name][i]['1. open'])
+        one_time_series['High'] = float(data[time_series_name][i]['2. high'])
+        one_time_series['Low'] = float(data[time_series_name][i]['3. low'])
+        one_time_series['Close'] = float(data[time_series_name][i]['4. close'])
+        one_time_series['Volume'] = float(data[time_series_name][i]['5. volume'])
         one_time_series['Date'] = i
         
         #apend to the front of the list 
@@ -59,14 +58,6 @@ def get_data(symbol, start, end):
     downloaded = download_data(symbol)
     df = pd.json_normalize(downloaded, 'time_series')
 
-    #print(list(downloaded['time_series_arr'])[0])
-
-    #df = pd.DataFrame({
-    #'Close': list(map(lambda d:d['Close'], downloaded['time_series'])),
-    #'Volume' : list(map(lambda d:d['Volume'], downloaded['time_series'])),
-    #'Date': list(map(lambda d:d['Date'], downloaded['time_series']))
-    #}, columns=['Close', 'Volume', 'Date'])
-    
     start = pd.to_datetime(start)
     end = pd.to_datetime(end)
 
